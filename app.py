@@ -29,7 +29,7 @@ class Song(db.Model):
     title = db.Column(db.String(255), nullable=False)
     artist = db.Column(db.String(255), nullable=False)
     album = db.Column(db.String(255), nullable=False)
-    release_date=db.Column(db.Date,nullable=False)
+    release_date = db.Column(db.Date,nullable=False)
     genre = db.Column(db.String(225), nullable = False)
     
     def __repr__(self):
@@ -44,7 +44,7 @@ class SongSchema(ma.Schema):
     release_date = fields.Date()
     genre = fields.String(required=True)
     class Meta:
-        fields=('id','title','artist', 'album', 'release_date','genre')
+        fields=('id','title','artist', 'album', 'release_date', 'genre')
     
     @post_load
     def create_song(self, data, **kwargs):
@@ -82,19 +82,21 @@ class SongResource(Resource):
     
     def put(self, song_id):
         song_from_db = Song.query.get_or_404(song_id)
-        if "title" in request.json:
-            song_from_db.name =request.json['title']
-        if "artist"in request.json:
-            song_from_db.description =request.json['artist']
-        if "album"in request.json:
-            song_from_db.price =request.json['album']
-        if "release_date"in request.json:
-            song_from_db.inventory_quantity =request.json['release_date']
-        if "genre"in request.json:
-            song_from_db.image =request.json['genre']
+        
+        if 'title' in request.json:
+            song_from_db.title=request.json['title']
+        if 'artist' in request.json:
+            song_from_db.artist=request.json['artist']
+        if 'release_date' in request.json:
+            song_from_db.release_date=request.json['release_date']
+        if 'genre' in request.json:
+            song_from_db.genre=request.json['genre']
+        if 'album' in request.json:
+            song_from_db.album=request.json['album']
+            
         db.session.commit()
         return song_schema.dump(song_from_db)
             
 # Routes
 api.add_resource(SongListResource, '/api/songs/')
-api.add_resource(SongResource, '/api/products/<int:song_id>')
+api.add_resource(SongResource, '/api/songs/<int:song_id>')
