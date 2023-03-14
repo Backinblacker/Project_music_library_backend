@@ -29,11 +29,12 @@ class Song(db.Model):
     title = db.Column(db.String(255), nullable=False)
     artist = db.Column(db.String(255), nullable=False)
     album = db.Column(db.String(255), nullable=False)
-    release_date = db.Column(db.Date,nullable=False)
+    release_date = db.Column(db.Date)
     genre = db.Column(db.String(225), nullable = False)
+    likes = db.Column(db.Integer)
     
     def __repr__(self):
-        return f'{self.title}{self.artist}{self.album}{self.release_date}{self.genre}'
+        return f'{self.title}{self.artist}{self.album}{self.release_date}{self.genre}{self.likes}'
 
 # Schemas
 class SongSchema(ma.Schema):
@@ -43,8 +44,9 @@ class SongSchema(ma.Schema):
     album = fields.String(required=True)
     release_date = fields.Date()
     genre = fields.String(required=True)
+    likes = fields.Integer()
     class Meta:
-        fields=('id','title','artist', 'album', 'release_date', 'genre')
+        fields=('id','title','artist', 'album', 'release_date', 'genre', 'likes')
     
     @post_load
     def create_song(self, data, **kwargs):
@@ -93,9 +95,16 @@ class SongResource(Resource):
             song_from_db.genre=request.json['genre']
         if 'album' in request.json:
             song_from_db.album=request.json['album']
-            
+        if 'likes' in request.json:
+            song_from_db.likes=request.json['likes']    
         db.session.commit()
         return song_schema.dump(song_from_db)
+    
+    def patch (self, song_id):
+        song_from_db=Song.query.get_or_404(song_id)
+        song_from_db.likes+=1
+        db.session.commit()
+        return song_schema.dump(song_from_db), 200
             
 # Routes
 api.add_resource(SongListResource, '/api/songs/')
