@@ -32,6 +32,7 @@ class Song(db.Model):
     release_date = db.Column(db.Date)
     genre = db.Column(db.String(225), nullable = False)
     likes = db.Column(db.Integer)
+    running_time = db.Column(db.Integer)
     
     def __repr__(self):
         return f'{self.title}{self.artist}{self.album}{self.release_date}{self.genre}{self.likes}'
@@ -45,8 +46,10 @@ class SongSchema(ma.Schema):
     release_date = fields.Date()
     genre = fields.String(required=True)
     likes = fields.Integer()
+    running_time = fields.Integer()
+    
     class Meta:
-        fields=('id','title','artist', 'album', 'release_date', 'genre', 'likes')
+        fields=('id','title','artist', 'album', 'release_date', 'genre', 'likes', 'running_time')
     
     @post_load
     def create_song(self, data, **kwargs):
@@ -96,7 +99,9 @@ class SongResource(Resource):
         if 'album' in request.json:
             song_from_db.album=request.json['album']
         if 'likes' in request.json:
-            song_from_db.likes=request.json['likes']    
+            song_from_db.likes=request.json['likes']
+        if 'running_time' in request.json:
+            song_from_db.running_time=request.json['running_time'] 
         db.session.commit()
         return song_schema.dump(song_from_db)
     
