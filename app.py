@@ -35,7 +35,7 @@ class Song(db.Model):
     running_time = db.Column(db.Integer)
     
     def __repr__(self):
-        return f'{self.title}{self.artist}{self.album}{self.release_date}{self.genre}{self.likes}'
+        return f'{self.title}{self.artist}{self.album}{self.release_date}{self.genre}{self.likes}{self.running_time}'
 
 # Schemas
 class SongSchema(ma.Schema):
@@ -62,7 +62,12 @@ songs_schema = SongSchema(many=True)
 class SongListResource(Resource):
     def get(self):
         all_songs = Song.query.all()
-        return songs_schema.dump(all_songs), 200
+        total_run_time = sum(song.running_time for song in all_songs)
+        custom_response ={
+            'songs':songs_schema.dump(all_songs),
+            "total_run_time": round(float(total_run_time),2)
+        }
+        return custom_response, 200
     
     def post(self):
         form_data = request.get_json()
